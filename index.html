@@ -14,7 +14,6 @@
 
 <!-- Plateau -->
 <div id="game-area" class="hidden">
-
     <div id="game-ui">
 
         <div id="game-ui-buttons">
@@ -22,16 +21,24 @@
                 <img src="gameBoard/pauseBtn.png" alt="Pause">
             </div>
 
-            <div><h2 id="score-box">Score : <span id="score">0</span></h2></div>
+            <div>
+                <h2 id="score-box">Score : <span id="score">0</span></h2>
+                <div id="stamina-container">
+                    <div id="stamina-bar"></div>
+                    <div id="boss-hp-bar">
+                        <div id="boss-hp-fill"></div>
+                    </div>
+
+                </div>
+            </div>
 
             <div id="stop-btn">
                 <img src="gameBoard/stopBtn.png" alt="Stop">
             </div>
         </div>
 
-
-
     </div>
+
 
     <img id="board-bg" src="gameBoard/plate.png" alt="Plateau">
 

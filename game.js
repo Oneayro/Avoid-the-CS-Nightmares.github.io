@@ -32,6 +32,24 @@ let scoreInterval;
 let bestScore = localStorage.getItem("bestScore") || 0;
 bestScoreSpan.textContent = bestScore;
 
+let stamina = 100;
+let staminaRegenRate = 0.25;
+let staminaDrainRate = 0.4;
+let playerSpeed = 6;
+
+let bossActive = false;
+let bossHP = 0;
+let boss;
+let bossY = 40;
+let bossX = 110;
+let bossDirection = 1;
+let bossFallSpeed = 0;
+let bossMoveSpeed = 0;
+
+
+let bossProjectileInterval;
+let bossNumber = 0;
+
 // ---------------- LOAD IMAGES ----------------
 
 // BAD IMAGES
@@ -54,45 +72,48 @@ let enemySpeedMultiplier = 1;
 
 // ---------------- START GAME ----------------
 function startGame() {
-    // Hide panels
     menu.classList.add("hidden");
     startBox.classList.add("hidden");
     gameOverBox.classList.add("hidden");
     pauseBox.classList.add("hidden");
 
-    // Show board
     gameArea.classList.remove("hidden");
     scoreBox.classList.remove("hidden");
     pauseBtn.classList.remove("hidden");
     stopBtn.classList.remove("hidden");
 
-    // Cleanup
     document.querySelectorAll(".enemy").forEach(e => e.remove());
     document.querySelectorAll(".bonus").forEach(e => e.remove());
+    document.querySelectorAll(".player-bullet").forEach(b => b.remove());
+    
 
-    // Reset state
-    score = 0;
-    scoreSpan.textContent = score;
     isGameOver = false;
     isPaused = false;
+
+    score = 0;
+    scoreSpan.textContent = score;
+
     enemySpeedMultiplier = 1;
     playerX = 175;
+    playerSpeed = 6;
     player.style.left = playerX + "px";
 
-    // SCORE LOOP
+    bossActive = false;
+    bossHP = 0;
+    clearInterval(bossProjectileInterval);
+    document.querySelectorAll(".boss").forEach(b => b.remove());
+    document.getElementById("boss-hp-bar").style.display = "none";
+
     scoreInterval = setInterval(() => {
         if (!isPaused && !isGameOver) {
             score++;
             scoreSpan.textContent = score;
 
-            // vitesse augmente chaque 50 pts
-            if (score % 50 === 0) {
-                enemySpeedMultiplier += 0.4;
-            }
+            if (score === 50) spawnBoss(1);
+            if (score === 150) spawnBoss(2);
         }
     }, 500);
 
-    // ENEMY LOOP
     enemyInterval = setInterval(() => {
         if (!isPaused && !isGameOver) spawnEnemy();
         if (!isPaused && !isGameOver && Math.random() < 0.20) spawnBonus();
@@ -108,6 +129,10 @@ function endGame() {
 
     clearInterval(enemyInterval);
     clearInterval(scoreInterval);
+    clearInterval(bossProjectileInterval);
+
+    document.getElementById("boss-hp-bar").style.display = "none";
+    document.querySelectorAll(".player-bullet").forEach(b => b.remove());
 
     finalScoreSpan.textContent = score;
 
@@ -121,7 +146,7 @@ function endGame() {
     gameOverBox.classList.remove("hidden");
 }
 
-// ---------------- PAUSE / UNPAUSE ----------------
+// ---------------- PAUSE ----------------
 function pauseGame() {
     if (isGameOver || isPaused) return;
 
@@ -131,7 +156,6 @@ function pauseGame() {
     pauseBox.classList.remove("hidden");
     pauseBtn.classList.add("hidden");
 
-    // important : cacher les boutons pour ne pas bloquer le rect
     menuBtn.classList.add("hidden");
 }
 
@@ -143,8 +167,10 @@ function continueGame() {
 
     document.querySelectorAll(".enemy").forEach(e => restartFall(e));
     document.querySelectorAll(".bonus").forEach(b => restartFall(b));
-}
+    document.querySelectorAll(".player-bullet").forEach(b => b.remove());
 
+    resumeBoss();
+}
 
 // ---------------- MOVEMENT ----------------
 let movingLeft = false;
@@ -161,19 +187,7 @@ document.addEventListener("keyup", e => {
     if (e.key === "ArrowRight") movingRight = false;
 });
 
-function smoothMovement() {
-    if (!isGameOver && !isPaused) {
-
-        if (movingLeft && playerX > 0) playerX -= 6;
-        if (movingRight && playerX < 350) playerX += 6;
-
-        player.style.left = playerX + "px";
-    }
-    requestAnimationFrame(smoothMovement);
-}
-smoothMovement();
-
-// ---------------- SPAWN ENEMY ----------------
+// ---------------- ENEMY ----------------
 function spawnEnemy() {
     const enemy = document.createElement("div");
     enemy.classList.add("enemy");
@@ -186,12 +200,9 @@ function spawnEnemy() {
 
     enemy.style.left = Math.floor(Math.random() * 300) + "px";
 
-
     gameArea.appendChild(enemy);
 
-    let enemyY = parseFloat(enemy.style.top) || 40;
-
-
+    let enemyY = 40;
     const speed = (6 + score * 0.02) * enemySpeedMultiplier;
 
     function fall() {
@@ -200,7 +211,6 @@ function spawnEnemy() {
         enemyY += speed;
         enemy.style.top = enemyY + "px";
 
-        // collision
         const p = player.getBoundingClientRect();
         const e = enemy.getBoundingClientRect();
 
@@ -220,13 +230,12 @@ function spawnEnemy() {
     fall();
 }
 
-// ---------------- SPAWN BONUS ----------------
+// ---------------- BONUS ----------------
 function spawnBonus() {
     const good = document.createElement("div");
     good.classList.add("bonus");
 
     const img = document.createElement("img");
-
     const chosenImg = goodItems[Math.floor(Math.random() * goodItems.length)];
     img.src = chosenImg;
     img.classList.add("bonus-img");
@@ -250,36 +259,46 @@ function spawnBonus() {
         const p = player.getBoundingClientRect();
         const g = good.getBoundingClientRect();
 
-        const overlap =
-            !(p.right < g.left ||
-              p.left > g.right ||
-              p.bottom < g.top ||
-              p.top > g.bottom);
+        const overlap = !(
+            p.right < g.left ||
+            p.left > g.right ||
+            p.bottom < g.top ||
+            p.top > g.bottom
+        );
 
         if (overlap) {
 
-            // BONUS SPÉCIAL WIPE
+            // BONUS WIPE = détruit tous les ennemis
             if (chosenImg === wipeImage) {
                 document.querySelectorAll(".enemy").forEach(e => e.remove());
-            } else {
+            } 
+            else {
                 score += 5;
                 scoreSpan.textContent = score;
 
-                // bonus normal = petite accélération
                 enemySpeedMultiplier += 0.2;
+
+                // BOOST VITESSE JOUEUR
+                playerSpeed += 2;
             }
 
             good.remove();
             return;
         }
 
-        if (y > 600) good.remove();
-        else requestAnimationFrame(fall);
+        if (y > 600) {
+            good.remove();
+            return;
+        }
+
+        requestAnimationFrame(fall);
     }
 
-    fall();
+    requestAnimationFrame(fall);
 }
 
+
+// ---------------- RESTART FALL ----------------
 function restartFall(element) {
     let y = parseFloat(element.style.top) || 0;
 
@@ -302,6 +321,253 @@ function restartFall(element) {
     requestAnimationFrame(fall);
 }
 
+// ---------------- STAMINA ----------------
+function setStamina(value) {
+    document.getElementById("stamina-bar").style.width = value + "%";
+}
+
+function smoothMovement() {
+    if (!isGameOver && !isPaused) {
+        let isMoving = false;
+
+        if (movingLeft && playerX > 0 && stamina > 0) {
+            playerX -= playerSpeed;
+            isMoving = true;
+        }
+
+        if (movingRight && playerX < 350 && stamina > 0) {
+            playerX += playerSpeed;
+            isMoving = true;
+        }
+
+        if (isMoving) {
+            stamina -= staminaDrainRate;
+            if (stamina < 0) stamina = 0;
+        } else {
+            stamina += staminaRegenRate;
+            if (stamina > 100) stamina = 100;
+        }
+
+        setStamina(stamina);
+        player.style.left = playerX + "px";
+    }
+
+    requestAnimationFrame(smoothMovement);
+}
+smoothMovement();
+
+// ---------------- SHOOT ----------------
+function shoot() {
+    const bullet = document.createElement("div");
+    bullet.classList.add("player-bullet");
+    bullet.style.left = (playerX + 25) + "px";
+    bullet.style.top = "480px";
+
+    gameArea.appendChild(bullet);
+
+    let y = 480;
+
+    function fly() {
+        if (isPaused || isGameOver) return;
+
+        y -= 8;
+        bullet.style.top = y + "px";
+
+        if (bossActive) {
+            const b = boss.getBoundingClientRect();
+            const bul = bullet.getBoundingClientRect();
+
+            const overlap = !(
+                bul.right < b.left ||
+                bul.left > b.right ||
+                bul.bottom < b.top ||
+                bul.top > b.bottom
+            );
+
+            if (overlap) {
+                hitBoss(1);
+                bullet.remove();
+                return;
+            }
+        }
+
+        if (y < 0) bullet.remove();
+        else requestAnimationFrame(fly);
+    }
+
+    fly();
+}
+
+document.addEventListener("keydown", e => {
+    if (e.key === " ") shoot();
+});
+
+function fallBoss() {
+    if (!bossActive || isPaused || isGameOver) return;
+
+    bossY += bossFallSpeed;
+    boss.style.top = bossY + "px";
+
+    if (bossY < 220) requestAnimationFrame(fallBoss);
+}
+
+function moveBoss() {
+    if (!bossActive || isPaused || isGameOver) return;
+
+    bossX += bossMoveSpeed * bossDirection;
+
+    if (bossX <= 0 || bossX >= 240) bossDirection *= -1;
+
+    boss.style.left = bossX + "px";
+
+    const p = player.getBoundingClientRect();
+    const b = boss.getBoundingClientRect();
+
+    const overlap = !(
+        p.right < b.left ||
+        p.left > b.right ||
+        p.bottom < b.top ||
+        p.top > b.bottom
+    );
+
+    if (overlap) return endGame();
+
+    if (bossHP > 0) requestAnimationFrame(moveBoss);
+}
+
+
+// ---------------- BOSS LOGIC ----------------
+function spawnBoss(which) {
+    if (bossActive) return;
+    bossActive = true;
+    bossNumber = which;
+    bossY = 40;
+    bossX = 110;
+    bossDirection = 1;
+
+
+    if (which === 1) {
+        bossHP = 3;
+        bossFallSpeed = 0.5;
+        bossMoveSpeed = 1.5;
+    } else {
+        bossHP = 6;
+        bossFallSpeed = 0.8;
+        bossMoveSpeed = 2.5;
+    }
+
+    clearInterval(enemyInterval);
+
+    boss = document.createElement("div");
+    boss.classList.add("boss");
+
+    const img = document.createElement("img");
+    if (which === 1) {
+        img.src = "gameBoard/Boss1.GIF";
+    } else {
+        img.src = "gameBoard/Boss2.GIF";
+    }
+    boss.appendChild(img);
+
+    boss.style.left = "110px";
+    boss.style.top = "40px";
+    gameArea.appendChild(boss);
+
+    document.getElementById("boss-hp-bar").style.display = "block";
+    updateBossHP();
+
+    requestAnimationFrame(moveBoss);
+    requestAnimationFrame(fallBoss);
+
+    bossProjectileInterval = setInterval(() => {
+        if (!bossActive || isPaused || isGameOver) return;
+
+        const projectile = document.createElement("div");
+        projectile.classList.add("enemy");
+
+        const img = document.createElement("img");
+        if (which === 1) {
+        img.src = "gameBoard/Boss1.GIF";
+        } else {
+            img.src = "gameBoard/Boss2.GIF";
+        }
+        img.classList.add("enemy-img");
+        projectile.appendChild(img);
+
+        projectile.style.left = bossX + "px";
+        projectile.style.top = bossY + 60 + "px";
+
+        gameArea.appendChild(projectile);
+
+        let y = bossY + 60;
+        const speed = 5;
+
+
+        function fall() {
+            if (isPaused || isGameOver) return;
+
+            y += speed;
+            projectile.style.top = y + "px";
+
+            const p = player.getBoundingClientRect();
+            const e = projectile.getBoundingClientRect();
+
+            const overlap = !(
+                p.right < e.left ||
+                p.left > e.right ||
+                p.bottom < e.top ||
+                p.top > e.bottom
+            );
+
+            if (overlap) {
+                endGame();
+                return;
+            }
+
+            if (y > 600) projectile.remove();
+            else requestAnimationFrame(fall);
+        }
+
+        fall();
+    }, which === 1 ? 1200 : 800);
+}
+
+function resumeBoss() {
+    if (!bossActive) return;
+
+    requestAnimationFrame(moveBoss);
+    requestAnimationFrame(fallBoss);
+}
+
+
+
+
+function updateBossHP() {
+    const bar = document.getElementById("boss-hp-fill");
+    const maxHP = bossNumber === 1 ? 3 : 6;
+    bar.style.width = (bossHP / maxHP) * 100 + "%";
+}
+
+function hitBoss(dmg) {
+    if (!bossActive) return;
+
+    bossHP -= dmg;
+    updateBossHP();
+
+    if (bossHP <= 0) killBoss();
+}
+
+function killBoss() {
+    boss.remove();
+    bossActive = false;
+    clearInterval(bossProjectileInterval);
+    document.getElementById("boss-hp-bar").style.display = "none";
+
+    enemyInterval = setInterval(() => {
+        if (!isPaused && !isGameOver) spawnEnemy();
+        if (!isPaused && !isGameOver && Math.random() < 0.20) spawnBonus();
+    }, 700);
+}
 
 // ---------------- BUTTONS ----------------
 pauseBtn.addEventListener("click", pauseGame);
@@ -309,4 +575,4 @@ continueButton.addEventListener("click", continueGame);
 restartButton.addEventListener("click", startGame);
 stopBtn.addEventListener("click", endGame);
 
-startFromStartBox.addEventListener("click", () => startGame());
+startFromStartBox.addEventListener("click", startGame);

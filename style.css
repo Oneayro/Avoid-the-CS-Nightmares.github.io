@@ -23,6 +23,13 @@ body {
     text-shadow: 0 0 10px black;
 }
 
+#stamina-bar {
+    width: 100px;
+    height: 10px;
+    background: red;
+}
+
+
 /* ======== TOP BUTTONS (PAUSE / STOP) ======== */
 
 #top-buttons {
@@ -88,8 +95,27 @@ body {
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    gap: 40px;        /* espace entre Pause et Stop */
+    gap: 20px;        /* espace entre Pause et Stop */
 }
+
+/* Conteneur stamina sous le score */
+#stamina-container {
+    width: 120px;
+    height: 12px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 6px;
+    margin: 5px auto 0 auto;
+    overflow: hidden;
+}
+
+/* Barre interne (valeur qui change) */
+#stamina-bar {
+    width: 100%;       
+    height: 100%;
+    background: linear-gradient(90deg, #4dfd4d, #3ac43a);
+    transition: width 0.2s ease-out;
+}
+
 
 
 /* Images des boutons */
@@ -140,11 +166,64 @@ body {
     align-items: center;
 }
 
+.bonus {
+    position: absolute;
+    width: 80px;
+    height: 20px;
+    z-index: 5;
+}
+
+
+
 .enemy-img, .bonus-img {
     width: 130px;
     height: 100px;
     pointer-events: none;
 }
+
+.boss {
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    z-index: 9;
+}
+
+.boss img {
+    width: 100%;
+    height: 100%;
+}
+
+#boss-hp-bar {
+    position: absolute;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 250px;
+    height: 20px;
+    background: #440000;
+    border: 3px solid #aa0000;
+    border-radius: 5px;
+    display: none;
+}
+
+#boss-hp-fill {
+    height: 100%;
+    width: 100%;
+    background: red;
+    border-radius: 3px;
+}
+
+.player-bullet {
+    position: absolute;
+    width: 8px;
+    height: 20px;
+    background: #ffd700; /* jaune */
+    border-radius: 3px;
+}
+
+
+
+
 
 #player {
     width: 50px;
@@ -291,7 +370,7 @@ body {
 
 #game-start-box .start-bg {
     width: 400px;
-    height: 400px;
+    height: 420px;
 }
 
 #start-from-startbox {
