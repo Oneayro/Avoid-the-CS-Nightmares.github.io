@@ -192,7 +192,7 @@ function spawnEnemy() {
     let enemyY = parseFloat(enemy.style.top) || 40;
 
 
-    const speed = (4 + score * 0.02) * enemySpeedMultiplier;
+    const speed = (6 + score * 0.02) * enemySpeedMultiplier;
 
     function fall() {
         if (isPaused || isGameOver) return;
