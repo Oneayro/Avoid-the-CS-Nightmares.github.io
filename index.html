@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Avoid the CS Nightmares</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Menu principal -->
+<div id="menu">
+</div>
+
+
+<!-- Plateau -->
+<div id="game-area" class="hidden">
+
+    <div id="game-ui">
+
+        <div id="game-ui-buttons">
+            <div id="pause-btn">
+                <img src="gameBoard/pauseBtn.png" alt="Pause">
+            </div>
+
+            <div><h2 id="score-box">Score : <span id="score">0</span></h2></div>
+
+            <div id="stop-btn">
+                <img src="gameBoard/stopBtn.png" alt="Stop">
+            </div>
+        </div>
+
+
+
+    </div>
+
+    <img id="board-bg" src="gameBoard/plate.png" alt="Plateau">
+
+    <div id="player">
+    <img src="codeimg/player.png" alt="player">
+    </div>
+
+</div>
+
+
+
+
+<!-- START BOX (écran de début) -->
+<div id="game-start-box">
+    <img class="start-bg" src="gameBoard/debut.png" alt="Début du jeu">
+
+    <div id="start-from-startbox">
+        <img src="gameBoard/playBtn.png" alt="Bouton commencer">
+    </div>
+</div>
+
+
+<!-- GAME OVER BOX -->
+<div id="game-over-box" class="hidden">
+    <div class="panel-container">
+        <img src="gameBoard/end.png" class="panel-bg">
+
+        <div class="panel-content">
+            <p>Votre score : <span id="final-score">0</span></p>
+            <p>Meilleur score : <span id="best-score">0</span></p>
+
+            <div id="restart-button" class="panel-btn">
+                <img src="gameBoard/restartBtn.png" alt="Restart">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- PAUSE BOX -->
+<div id="game-paused-box" class="hidden">
+    <div class="panel-container">
+        <img src="gameBoard/pause.png" class="panel-bg">
+        <div class="panel-content">
+            <p>Votre score : <span id="current-score">0</span></p>
+            <div id="continue-button" class="panel-btn">
+                <img src="gameBoard/continueBtn.png" alt="Continue">
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="game.js"></script>
+</body>
+</html>

@@ -1,0 +1,319 @@
+/* ========  GLOBAL ======== */
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: white;
+    text-align: center;
+    background-image: url(gameBoard/vodu.gif);
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ======== MENU ======== */
+
+#menu {
+    margin-top: 40px;
+}
+
+#menu h1 {
+    font-size: 55px;
+    text-shadow: 0 0 10px black;
+}
+
+/* ======== TOP BUTTONS (PAUSE / STOP) ======== */
+
+#top-buttons {
+    margin-top: 20px;
+}
+
+#pause-btn img,
+#stop-btn img {
+    width: 150px;
+    cursor: pointer;
+}
+
+#pause-btn,
+#stop-btn {
+    display: inline-block;
+    margin: 10px;
+}
+
+/* ======== SCORE ======== */
+
+#score-box {
+    font-size: 30px;
+    margin-top: 15px;
+    text-shadow: 0 0 10px black;
+}
+
+/* ======== GAME AREA ======== */
+/* Plateau centré */
+#game-area {
+    position: relative;
+    width: 400px;
+    height: 600px;
+    margin: 100px auto; /* centre horizontal */
+    overflow: hidden;
+}
+
+/* Image du plateau */
+#board-bg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    pointer-events: none;
+}
+
+/* UI interne du jeu (pause, stop, score) */
+#game-ui {
+    position: absolute;
+    top: 20px;          
+    left: 50%;
+    right: 50%;
+    transform: translateX(-50%);
+    width: 50%;
+    
+    display: flex;
+    justify-content: space-between;  /* espace automatique */
+    align-items: center;  
+    width: 100%;
+}
+
+/* Ligne boutons Pause / Stop */
+#game-ui-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;        /* espace entre Pause et Stop */
+}
+
+
+/* Images des boutons */
+#pause-btn img,
+#stop-btn img {
+    width: 100px;
+    cursor: pointer;
+}
+
+/* Score */
+#score-box {
+    margin: 0;
+    font-size: 20px;
+    font-weight: bold;
+    color: black;
+    text-shadow: 0 0 0px black;
+}
+
+/* ======== PLAYER ======== */
+
+#player {
+    width: 60px;
+    height: 60px;
+    position: absolute;
+    bottom: 30px;
+    left: 175px;
+    font-size: 45px;
+    text-shadow: 0 0 10px black;
+}
+#player img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+}
+#player {
+    position: absolute;
+}
+
+
+/* ======== ENEMY ======== */
+
+.enemy, .bonus {
+    position: absolute;
+    width: 80px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.enemy-img, .bonus-img {
+    width: 130px;
+    height: 100px;
+    pointer-events: none;
+}
+
+#player {
+    width: 50px;
+    height: 50px;
+}
+
+
+
+
+
+@keyframes floating {
+    from { transform: scale(0.2); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+}
+
+/* ======== BOXES (START / PAUSE / GAME OVER) ======== */
+
+/* Position centré pour TOUS les panneaux */
+#game-start-box {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    color: black;
+}
+
+
+#game-paused-box {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    color: black;
+}
+#game-paused-box .panel {
+    width: 90%;
+    height: 100px;
+    pointer-events: none;  /* on clique PAS sur l'image */
+}
+#game-paused-box .panel-content {
+    position: absolute;
+    top: 70%;  /* AJUSTE CETTE VALEUR pour remonter/descendre le contenu */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+#game-over-box {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+
+    width: 420px; /* ajuste à la taille de ton panneau */
+    height: auto;
+}
+#game-over-box .panel {
+    width: 100%;
+    height: 100px;
+    pointer-events: none;  /* on clique PAS sur l'image */
+}
+#game-over-box .panel-content {
+    position: absolute;
+    top: 70%;  /* AJUSTE CETTE VALEUR pour remonter/descendre le contenu */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+#game-over-box p {
+    margin: 0;
+    padding: 0;
+    font-size: 15px;
+    font-weight: bold;
+    color: black;
+    pointer-events: none;
+}
+
+/* Bouton restart */
+#restart-button img {
+    width: 100px;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+/* Conteneur interne (panneau + contenu) */
+.panel-container {
+    position: relative;
+    width: 300px;
+    height: auto;
+}
+
+/* Image de fond du panneau */
+.panel-bg {
+    width: 100%;
+    display: block;
+}
+
+/* Contenu centré sur l'image */
+.panel-content {
+    position: absolute;
+    top: 70%; /* Ajuste ici pour repositionner texte/boutons */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    pointer-events: none; /* IMPORTANT */
+}
+
+/* Boutons interactifs */
+.panel-btn {
+    pointer-events: auto;
+}
+
+.panel-btn img {
+    width: 180px;
+    cursor: pointer;
+}
+
+
+/* ======== START BOX ======== */
+
+#game-start-box .start-bg {
+    width: 400px;
+    height: 400px;
+}
+
+#start-from-startbox {
+    position: absolute;
+    bottom: 40px;
+    left: 54%;
+    transform: translateX(-50%);
+    cursor: pointer;
+}
+
+#start-from-startbox img {
+    width: 120px;
+}
+
+/* ======== POPUP ANIMATION ======== */
+
+#game-over-box,
+#game-paused-box {
+    animation: popup 0.3s ease-out;
+}
+
+@keyframes popup {
+    from { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
+    to   { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
