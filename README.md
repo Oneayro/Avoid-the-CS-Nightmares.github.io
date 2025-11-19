@@ -64,6 +64,21 @@ L’objectif est de survivre le plus longtemps possible pour obtenir le meilleur
 
 ---
 
+## ▶️ Lancer le jeu
+Aucune installation compliquée.
+
+1. Télécharger le dossier du projet  
+2. Ouvrir **index.html** dans un navigateur moderne (Chrome recommandé)
+
+> ⚠️ Aucun serveur nécessaire. Il s’agit d’un build web statique.
+
+---
+
+## 📹 Vidéo de démonstration (1 minute)
+*(Tu ajouteras le lien YouTube une fois filmé)*  
+👉 **[Lien vidéo ici]**
+
+---
 
 ## 👩‍🎨 Crédits
 - **Développement & design** : Oriane Claudelle Mogue Foaleng  
@@ -71,4 +86,9 @@ L’objectif est de survivre le plus longtemps possible pour obtenir le meilleur
   - Dessins faits maison + images libres de droits (OpenArt / Pixabay / FreePik selon tes sources exactes)
 - **Technologie utilisée** : JavaScript natif, HTML5, CSS3
 
+---
+
+## 📄 Licence
+Utilisation pédagogique uniquement.  
+Aucune redistribution commerciale des assets.
 
